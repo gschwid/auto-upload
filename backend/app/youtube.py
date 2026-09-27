@@ -11,7 +11,7 @@ from apiclient.errors import HttpError
 from apiclient.http import MediaFileUpload
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.file import Storage
-from oauth2client.tools import argparser, run_flow
+from import argparser, run_flow
 
 
 # Explicitly tell the underlying HTTP transport library not to retry, since
@@ -22,6 +22,9 @@ httplib2.RETRIES = 1
 MAX_RETRIES = 10
 
 # Always retry when these exceptions are raised.
+RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError)
+
+RETRIABLE_EXCEPTIONS = (httplib2.HttpLib2Error, IOError)
 
 
 # Always retry when an apiclient.errors.HttpError with one of these status
@@ -67,12 +70,12 @@ https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
 VALID_PRIVACY_STATUSES = ("public", "private", "unlisted")
 
 
-def get_authenticated_service(args):
+def get_authenticated_service():
   flow = flow_from_clientsecrets(CLIENT_SECRETS_FILE,
     scope=YOUTUBE_UPLOAD_SCOPE,
     message=MISSING_CLIENT_SECRETS_MESSAGE)
 
-  storage = Storage("%s-oauth2.json" % sys.argv[0])
+  storage = Storage("%s-oauth2.json" % "youtube.py")
   credentials = storage.get()
 
   if credentials is None or credentials.invalid:
@@ -131,13 +134,13 @@ def resumable_upload(insert_request):
           print("Video id '%s' was successfully uploaded." % response['id'])
         else:
           exit("The upload failed with an unexpected response: %s" % response)
-    except (HttpError, e):
+    except HttpError as e:
       if e.resp.status in RETRIABLE_STATUS_CODES:
         error = "A retriable HTTP error %d occurred:\n%s" % (e.resp.status,
                                                              e.content)
       else:
         raise
-    except (RETRIABLE_EXCEPTIONS, e):
+    except RETRIABLE_EXCEPTIONS as e:
       error = "A retriable error occurred: %s" % e
 
     if error is not None:
@@ -156,5 +159,5 @@ if __name__ == '__main__':
   youtube = get_authenticated_service(args)
   try:
     initialize_upload(youtube, args)
-  except (HttpError, e):
+  except HttpError as e:
     print("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))

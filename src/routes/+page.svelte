@@ -43,39 +43,6 @@
 					bind:files={file}
 				/>
 			</div>
-
-			<fieldset class="mt-8 border-t border-slate-200 pt-6">
-				<div class="mt-1 grid gap-3 sm:grid-cols-3">
-					<label
-						class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-violet-300 hover:bg-violet-50"
-					>
-						<input
-							type="checkbox"
-							class="rounded border-slate-300 text-violet-600 focus:ring-0 focus:ring-offset-0"
-						/>
-						Youtube Shorts
-					</label>
-					<label
-						class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-violet-300 hover:bg-violet-50"
-					>
-						<input
-							type="checkbox"
-							class="rounded border-slate-300 text-violet-600 focus:ring-0 focus:ring-offset-0"
-						/>
-						Instagram Reels
-					</label>
-					<label
-						class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:border-violet-300 hover:bg-violet-50"
-					>
-						<input
-							type="checkbox"
-							class="rounded border-slate-300 text-violet-600 focus:ring-0 focus:ring-offset-0"
-						/>
-						TikTok
-					</label>
-				</div>
-			</fieldset>
-
 			<button
 				class="mt-8 w-full rounded-lg bg-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-700 focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:outline-none"
 				onclick={handleUpload}

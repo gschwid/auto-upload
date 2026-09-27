@@ -41,3 +41,4 @@ htmlcov/
 client_secrets*.json
 *oauth2.json
 backend/app/uploads/
+database.db

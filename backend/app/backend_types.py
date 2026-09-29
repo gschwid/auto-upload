@@ -7,7 +7,6 @@ class Visibility(str, Enum):
     private = "private"
 
 class Video(BaseModel):
-    file_path: str
     title: str
     bio: str
     visibility: Visibility

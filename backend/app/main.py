@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from authlib.integrations.starlette_client import OAuth
 from starlette.middleware.sessions import SessionMiddleware
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from backend_types import Video
 
 
 load_dotenv()
@@ -54,9 +55,9 @@ sqlite_url = f"sqlite:///{sqlite_file_name}"
 connect_args = {"check_same_thread": False}
 engine = create_engine(sqlite_url, connect_args=connect_args)
 
-class Platforms(SQLModel, table=True):
+class Platform(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    platform: str = Field(index=True)
+    platform: str = Field(index=True, unique=True)
     refresh_token: str = Field()
     access_token: str = Field()
 
@@ -64,11 +65,21 @@ def get_session():
     with Session(engine) as session:
         yield session
 
-
 SessionDep = Annotated[Session, Depends(get_session)]
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+
+def create_platform(platform: Platform, session: Session) -> Platform:
+    session.add(platform)
+    session.commit()
+    session.refresh(platform)
+    return platform
+
+def get_platform(name: str, session: Session) -> Platform | None:
+    statement = select(Platform).where(Platform.platform == name)
+    found = session.exec(statement).one_or_none()
+    return found
 
 @app.on_event("startup")
 def on_startup():
@@ -79,7 +90,7 @@ def read_root():
     return {"Hello": "World"}
 
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(file: UploadFile = File(...), video_metadata: Video):
     try:
         if (file.filename and file.content_type):
             if "video" not in file.content_type:
@@ -111,11 +122,13 @@ async def upload_file(file: UploadFile = File(...)):
 async def auth_google(request: Request):
     return await oauth.google.authorize_redirect(request, redirect_uri="http://localhost:8000/auth/google/callback")
 
+# Just assume it wont get double added idk bru
 @app.get('/auth/google/callback')
-async def google_callback(request: Request):
+async def google_callback(request: Request, session: SessionDep):
     token = await oauth.google.authorize_access_token(request)
-    print(token)
-    return(token)
+    platform = Platform(platform="youtube", access_token=token["access_token"], refresh_token=token["refresh_token"])
+    create_platform(platform, session)
+    return "got refresh token"
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

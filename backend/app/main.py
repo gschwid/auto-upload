@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from authlib.integrations.starlette_client import OAuth
 from starlette.middleware.sessions import SessionMiddleware
 from sqlmodel import Field, Session, SQLModel, create_engine, select
-from backend_types import Video
+from app.backend_types import Video
 
 
 load_dotenv()
@@ -90,7 +90,7 @@ def read_root():
     return {"Hello": "World"}
 
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...), video_metadata: Video):
+async def upload_file(video_metadata: Video, file: UploadFile = File(...)):
     try:
         if (file.filename and file.content_type):
             if "video" not in file.content_type:

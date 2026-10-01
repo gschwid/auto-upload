@@ -2,21 +2,27 @@
 	import { uploadVideo } from '$lib/api/upload';
 
 	let file = $state<FileList | null>(null);
-	let visibility = $state<'public' | 'private'>('private');
-	let title = $state('Untitled')
-	let bio = $state('No Description')
-	let keywords = $state('lame, boring')
+	let visibility = $state<'public' | 'private'>("private");
+	let title = $state("")
+	let bio = $state("")
+	let keywords = $state("")
 
 	function handleUpload() {
-		if ( file && file.length > 0) {
+		if (file && file.length > 0 && title && bio) {
 			console.log('Uploading file:', file[0]);
-			uploadVideo(file[0])
+			console.log(title)
+			const keywordsList = keywords.split(/\s*,\s*/);
+			uploadVideo(file[0], title, bio, keywordsList, visibility)
 				.then((response) => {
 					console.log('Upload successful:', response);
 				})
 				.catch((error) => {
 					console.error('Upload failed:', error);
 				});
+		}
+		else {
+			console.error("fill out form");
+      		return;
 		}
 	}
 
